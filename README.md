@@ -1,5 +1,7 @@
 # Infinitive Integration for Home Assistant
 
+Maintainers: see [automatic compatibility checks and notifications](MAINTAINING.md).
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 
@@ -128,6 +130,5 @@ This integration exists to enable users of the Bryant/Carrier HVAC units that ar
 <br>
 
 ## If all worked properly you should see a climate.infinitive entity in HA now.  Good job following these crazy instructions!
-
 
 
