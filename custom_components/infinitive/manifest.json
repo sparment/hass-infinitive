@@ -1,9 +1,11 @@
 {
   "domain": "infinitive",
   "name": "Infinitive",
-  "documentation": "https://github.com/mww012/ha_customcomponents",
+  "documentation": "https://github.com/sparment/hass-infinitive",
   "requirements": ["pyinfinitive==0.0.5"],
   "dependencies": [],
-  "codeowners": ["@gogades","@mww012","@tjdavisbz"],
+  "codeowners": ["@sparment"],
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/sparment/hass-infinitive/issues",
   "version": "v0.0.14"
 }

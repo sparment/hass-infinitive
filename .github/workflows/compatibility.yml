@@ -1,0 +1,84 @@
+name: Home Assistant compatibility
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 9 * * *'
+    - cron: '43 10 * * 0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compatibility-${{ github.workflow }}-${{ github.ref }}-${{ github.event.schedule || 'change' }}
+  cancel-in-progress: true
+
+jobs:
+  versions:
+    name: Find current Home Assistant versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - run: python -m pip install 'packaging>=24,<27'
+      - name: Resolve exact versions and Python requirements
+        id: matrix
+        env:
+          WEEKLY: ${{ github.event.schedule == '43 10 * * 0' }}
+        run: |
+          if [ "$WEEKLY" = "true" ]; then
+            python scripts/compatibility_matrix.py --dev
+          else
+            python scripts/compatibility_matrix.py
+          fi
+
+  compatibility:
+    name: Test ${{ matrix.channel }} (${{ matrix.version }})
+    needs: versions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install selected Home Assistant and declared dependencies
+        env:
+          HA_PACKAGE: ${{ matrix.package }}
+        run: |
+          python -m pip install "$HA_PACKAGE" -r requirements-test.txt
+          python -c 'import json, subprocess, sys; deps=json.load(open("custom_components/infinitive/manifest.json"))["requirements"]; subprocess.check_call([sys.executable, "-m", "pip", "install", *deps])'
+          python -m pip check
+      - name: Record tested versions
+        if: always()
+        run: python -m pip freeze | tee installed-versions.txt
+      - name: Test integration without network access
+        run: python -m pytest --junitxml=test-results.xml
+      - name: Save diagnostic results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compatibility-${{ matrix.channel }}
+          path: |
+            test-results.xml
+            installed-versions.txt
+          retention-days: 14
+
+  hassfest:
+    name: Validate integration metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@master
