@@ -3,18 +3,15 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
 
 
-# LOOKING FOR A NEW MAINTAINER - I no longer have a Bryant/Carrier HVAC unit so I don't use and cannot test this integration any longer. It's really not a lot of work (look at the commit log), but it's an important integration for the folks who need it.  Consider volunteering.
-
 **THIS README IS A WIP!  Please let me know if parts of these instructions no longer work.**
 
-This integration started when I purchased a new home. It's got a Bryant (Carrier) HVAC unit.  Sure enough, I bought a house with one of the 5% of units that isn't compatible with Nest thermostats.  I started my research and found the Infinitive project.  I wanted to dig deeper into python so a Home Assistant integration seemed like the perfect opportunity.  Once you're done with these instructions you should have a thermostat in HA that controls your Bryant/Carrier HVAC unit.
+This integration exists to enable users of the Bryant/Carrier HVAC units that are incompatible with smart thermostats (e.g. Nest, Eco, etc) to work with Home Assistant. This integration is reliant on the Infinitive project for establishing the hardware integration required to then interface with Home Assistant. Once you're done with these instructions you should have a thermostat in HA that controls your Bryant/Carrier HVAC unit.
 
 ## Installation Steps:
 
-1. Buy a Raspberry Pi - I'm running mine on a Pi Zero with no issues.
-[Here's the Pi Zero I purchased](https://www.amazon.com/gp/product/B072N3X39J/) and it has everything we need.  As of mid-2022 supplies seem to be low so you may have to search elsewhere for one.
+1. Buy a Raspberry Pi.
 2. Buy a RS-485 USB adapter 11 for the Raspberry Pi -
-[Here's the RS-485 USB adapter I purchased](https://www.amazon.com/gp/product/B076WVFXN8/) but any RS-485 FTDI adapter should do.
+[Here's an example](https://www.amazon.com/gp/product/B076WVFXN8/) but any RS-485 FTDI adapter should do.
 3. Buy some wire - Search for ```18/2 thermostat wire```.  It's cheap and solid core.  You need enough to reach from your HVAC unit system board to the location of your RS-485 adapter.
   *Note: Some users have seen communication reliability issues with stranded core wire so solid core is preferred.  Not sure why but this is what we've observed.*
 4. Flash the latest version of ```Raspberry Pi OS Lite``` to your SD card - [Here's](https://www.raspberrypi.com/software/) an all-in-one installer for Raspberry Pi OS.
@@ -109,12 +106,12 @@ This integration started when I purchased a new home. It's got a Bryant (Carrier
     <summary>HACS Installation (Recommended)</summary>
 
     1. Install HACS in HA.  [Here](https://hacs.xyz/docs/setup/download) are instructions if you need them.
-    2. Add ```https://github.com/gogades/hass-infinitive``` as a custom repository.  See [here](https://hacs.xyz/docs/faq/custom_repositories) for instructions.
+    2. Add ```https://github.com/sparment/hass-infinitive``` as a custom repository.  See [here](https://hacs.xyz/docs/faq/custom_repositories) for instructions.
     </details>
     <details>
     <summary>Manual Installation</summary>
 
-    1. Download the [hass-infinitive repository](https://github.com/gogades/hass-infinitive)
+    1. Download the [hass-infinitive repository](https://github.com/sparment/hass-infinitive)
     2. Copy the ```custom_components/infinitive``` folder into your HA custom_components folder.
     </details>
 
