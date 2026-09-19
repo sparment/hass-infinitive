@@ -27,7 +27,7 @@ confirm your personal Actions notification settings.
 | --- | --- |
 | Latest stable HA | Daily at 09:23 UTC, on pull requests, and on changes to `master` |
 | Newer beta/prerelease HA | Same runs, only while a prerelease newer than stable exists |
-| HA development branch | Sundays at 10:43 UTC |
+| HA development branch | Sundays at 10:43 UTC, pull requests, and manual runs |
 | Hassfest metadata validation | Every workflow run |
 
 The workflow resolves exact versions on every run, uses the Python version HA

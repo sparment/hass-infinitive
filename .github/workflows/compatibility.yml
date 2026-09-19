@@ -33,9 +33,12 @@ jobs:
         id: matrix
         env:
           WEEKLY: ${{ github.event.schedule == '43 10 * * 0' }}
+          ALL_CHANNELS: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}
         run: |
           if [ "$WEEKLY" = "true" ]; then
             python scripts/compatibility_matrix.py --dev
+          elif [ "$ALL_CHANNELS" = "true" ]; then
+            python scripts/compatibility_matrix.py --all
           else
             python scripts/compatibility_matrix.py
           fi

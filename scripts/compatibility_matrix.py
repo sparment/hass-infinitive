@@ -32,7 +32,7 @@ def released_versions(data):
 
 def main():
     entries = []
-    if "--dev" in sys.argv:
+    if "--dev" in sys.argv or "--all" in sys.argv:
         commit = json.loads(fetch("https://api.github.com/repos/home-assistant/core/commits/dev"))["sha"]
         metadata = tomllib.loads(fetch(
             f"https://raw.githubusercontent.com/home-assistant/core/{commit}/pyproject.toml"
@@ -40,7 +40,7 @@ def main():
         entries.append({"channel": "development", "version": commit,
                         "python": python_version(metadata["project"]["requires-python"]),
                         "package": f"https://github.com/home-assistant/core/archive/{commit}.zip"})
-    else:
+    if "--dev" not in sys.argv:
         versions = released_versions(json.loads(fetch("https://pypi.org/pypi/homeassistant/json")))
         stable = max(version for version in versions if not version.is_prerelease)
         candidates = [("stable", stable)]
