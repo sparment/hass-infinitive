@@ -41,6 +41,7 @@ async def hass(tmp_path):
     loader.async_setup(instance)
     device_registry.async_setup(instance)
     await device_registry.async_load(instance)
+    await instance.config_entries.async_initialize()
     await entity_registry.async_load(instance)
     try:
         yield instance
