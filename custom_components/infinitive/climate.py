@@ -162,35 +162,43 @@ class InfinitiveDevice(ClimateEntity):
         return self._name
 
     @property
-    def current_temperature(self):
+    def native_current_temperature(self):
         """Return the current temperature."""
         _LOGGER.debug("Current Temp: " + str(self._current_temperature))
         return self._current_temperature
 
     @property
-    def target_temperature_high(self):
+    def native_target_temperature_high(self):
         """Return the target high temp(cool setpoint)."""
         _LOGGER.debug("Target High Temp: " + str(self._target_temperature_high))
         return self._target_temperature_high
 
     @property
-    def target_temperature_low(self):
+    def native_target_temperature_low(self):
         """Return the target low temp(heat setpoint)."""
         _LOGGER.debug("Target Low Temp: " + str(self._target_temperature_low))
         return self._target_temperature_low
 
     @property
-    def target_temperature(self):
+    def native_target_temperature(self):
         """Return the target temp(heat setpoint)."""
         _LOGGER.debug("Target Temp: " + str(self._target_temperature))
         return self._target_temperature
 
     @property
-    def temperature_unit(self):
+    def native_temperature_unit(self):
         """Return the unit of measurement."""
         # _LOGGER.debug("Unit of measurement:" +
         #   str(self._unit_of_measurement))
         return self._unit_of_measurement
+
+    # Older Home Assistant versions read the original climate properties.
+    if not hasattr(ClimateEntity, "native_temperature_unit"):
+        current_temperature = native_current_temperature
+        target_temperature_high = native_target_temperature_high
+        target_temperature_low = native_target_temperature_low
+        target_temperature = native_target_temperature
+        temperature_unit = native_temperature_unit
 
     @property
     def fan_mode(self):
