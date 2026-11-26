@@ -2,11 +2,12 @@
 from unittest.mock import patch
 
 import pytest
+import voluptuous as vol
 from homeassistant.components.climate import HVACMode, HVACAction
-from homeassistant.const import UnitOfTemperature
+from homeassistant.const import CONF_UNIQUE_ID, UnitOfTemperature
 from homeassistant.setup import async_setup_component
 
-from custom_components.infinitive.climate import InfinitiveDevice, PLATFORM_SCHEMA
+from custom_components.infinitive.climate import InfinitiveDevice, PLATFORM_SCHEMA, setup_platform
 
 
 @pytest.fixture
@@ -18,6 +19,28 @@ def test_yaml_configuration():
     config = PLATFORM_SCHEMA({"platform": "infinitive", "host": "192.0.2.1"})
     assert config["port"] == 8080
     assert config["tempunits"] == "fahrenheit"
+
+
+@pytest.mark.parametrize("options,expected", [
+    ({}, "192.0.2.1:8080"),
+    ({"port": 9090}, "192.0.2.1:9090"),
+    ({CONF_UNIQUE_ID: "carrier_infinity_thermostat"}, "carrier_infinity_thermostat"),
+])
+def test_setup_unique_id(device, options, expected):
+    """Preserve legacy identity unless YAML explicitly supplies a unique ID."""
+    config = PLATFORM_SCHEMA({"platform": "infinitive", "host": "192.0.2.1", **options})
+    entities = []
+    with patch("pyinfinitive.infinitive_device", return_value=device):
+        setup_platform(None, config, entities.extend)
+    assert len(entities) == 1
+    assert entities[0].unique_id == expected
+
+
+@pytest.mark.parametrize("invalid_id", [None, [], {}])
+def test_invalid_unique_id(invalid_id):
+    """Use Home Assistant's string validation for the optional identifier."""
+    with pytest.raises(vol.Invalid):
+        PLATFORM_SCHEMA({"platform": "infinitive", "host": "192.0.2.1", CONF_UNIQUE_ID: invalid_id})
 
 
 @pytest.mark.parametrize("device_mode,ha_mode", [

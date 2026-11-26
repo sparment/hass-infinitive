@@ -14,6 +14,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.const import (
     CONF_HOST,
     CONF_PORT,
+    CONF_UNIQUE_ID,
     UnitOfTemperature,
     ATTR_FRIENDLY_NAME,
 )
@@ -76,6 +77,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT, default=8080): cv.positive_int,
+        vol.Optional(CONF_UNIQUE_ID): cv.string,
         vol.Optional(ATTR_FRIENDLY_NAME, default="Infinitive"): cv.string,
         vol.Optional(CONF_TEMP_UNITS, default="fahrenheit"): cv.string,
         vol.Optional(CONF_TEMP_MIN_SPREAD, default=2): cv.positive_int,
@@ -91,7 +93,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     host = config[CONF_HOST]
     port = config[CONF_PORT]
     name = config[ATTR_FRIENDLY_NAME]
-    uniqueid = config[CONF_HOST] + ":" + str(config[CONF_PORT])
+    uniqueid = config.get(CONF_UNIQUE_ID, f"{host}:{port}")
     temp_units = UnitOfTemperature.FAHRENHEIT
     if config[CONF_TEMP_UNITS].lower() == "celsius":
         temp_units=UnitOfTemperature.CELSIUS
@@ -153,7 +155,7 @@ class InfinitiveDevice(ClimateEntity):
 
     @property
     def unique_id(self):
-        """Return the unique id of this alarm control panel."""
+        """Return the unique ID of this Infinitive thermostat."""
         return self._unique_id
 
     @property

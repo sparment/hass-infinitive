@@ -121,11 +121,40 @@ This integration exists to enable users of the Bryant/Carrier HVAC units that ar
      ```
      climate:
        - platform: infinitive
-       host: [Raspberry Pi IP]
-       port: 8080
+         host: [Raspberry Pi IP]
+         port: 8080
      ```
 
 3.  Restart Home Assistant
+
+## Optional entity identity configuration
+
+| Parameter | Type | Required | Default |
+| --- | --- | --- | --- |
+| `unique_id` | String | No | `host:port` |
+
+The optional `unique_id` parameter explicitly defines the Home Assistant entity's
+unique identifier. For example:
+
+```yaml
+climate:
+  - platform: infinitive
+    host: !secret carrier_ip
+    port: !secret carrier_port
+    unique_id: carrier_infinity_thermostat
+```
+
+Existing users do not need to change their configuration. Omitting `unique_id`
+preserves the existing host-and-port-based identifier and entity identity.
+Choose a distinct `unique_id` for each configured Infinitive thermostat. Keep it
+stable unless you intentionally want to establish a new entity identity.
+
+Changing an existing installation's unique ID may create a new Home Assistant
+entity registry entry, possibly with a suffixed entity ID such as
+`climate.infinitive_2`. To retain the original entity ID, remove the obsolete
+entity registry entry and rename the newly created entity to the original entity
+ID. Verify dashboards, automations, templates, HomeKit Bridge configuration, and
+other entity references after changing identity.
 
 <br>
 
