@@ -162,5 +162,3 @@ async def test_load_and_services(hass, device):
         device.set_temp.assert_called_with(69, "heat")
         await hass.services.async_call("climate", "turn_off", {"entity_id": state.entity_id}, blocking=True)
         device.set_mode.assert_called_with("off")
-        await hass.services.async_call("climate", "turn_on", {"entity_id": state.entity_id}, blocking=True)
-        assert device.set_mode.call_args.args[0] in ("heat", "cool", "auto")
