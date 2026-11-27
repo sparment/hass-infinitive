@@ -100,6 +100,51 @@ def test_reading_recovers_after_connection_error(entity, device):
     assert entity.current_temperature == 72
 
 
+@pytest.mark.parametrize("device_mode", ["heat", "cool", "auto"])
+async def test_turn_on_preserves_active_hvac_mode(hass, device, device_mode):
+    """Turning on an active thermostat must not change its operating mode."""
+    device.status["mode"] = device_mode
+    with patch("pyinfinitive.infinitive_device", return_value=device):
+        assert await async_setup_component(hass, "climate", {
+            "climate": [{"platform": "infinitive", "host": "192.0.2.1", "port": 8080}]
+        })
+        await hass.async_block_till_done()
+        state = hass.states.get("climate.infinitive")
+        assert state is not None
+        assert state.state == {
+            "heat": HVACMode.HEAT,
+            "cool": HVACMode.COOL,
+            "auto": HVACMode.HEAT_COOL,
+        }[device_mode]
+
+        device.set_mode.reset_mock()
+        await hass.services.async_call("climate", "turn_on", {
+            "entity_id": state.entity_id,
+        }, blocking=True)
+
+    device.set_mode.assert_not_called()
+
+
+async def test_turn_on_when_off_uses_home_assistant_fallback(hass, device):
+    """Turning on while Off still delegates mode selection to Home Assistant."""
+    device.status["mode"] = "off"
+    with patch("pyinfinitive.infinitive_device", return_value=device):
+        assert await async_setup_component(hass, "climate", {
+            "climate": [{"platform": "infinitive", "host": "192.0.2.1", "port": 8080}]
+        })
+        await hass.async_block_till_done()
+        state = hass.states.get("climate.infinitive")
+        assert state is not None
+        assert state.state == HVACMode.OFF
+
+        await hass.services.async_call("climate", "turn_on", {
+            "entity_id": state.entity_id,
+        }, blocking=True)
+
+    device.set_mode.assert_called_once()
+    assert device.set_mode.call_args.args[0] in {"heat", "cool", "auto"}
+
+
 async def test_load_and_services(hass, device):
     """Load YAML through HA and exercise its actual service dispatch."""
     with patch("pyinfinitive.infinitive_device", return_value=device):
@@ -117,5 +162,3 @@ async def test_load_and_services(hass, device):
         device.set_temp.assert_called_with(69, "heat")
         await hass.services.async_call("climate", "turn_off", {"entity_id": state.entity_id}, blocking=True)
         device.set_mode.assert_called_with("off")
-        await hass.services.async_call("climate", "turn_on", {"entity_id": state.entity_id}, blocking=True)
-        assert device.set_mode.call_args.args[0] in ("heat", "cool", "auto")

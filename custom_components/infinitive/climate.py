@@ -31,6 +31,7 @@ from homeassistant.components.climate.const import (
     ATTR_FAN_MODES,
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
+    HVACMode,
     HVAC_MODES,
     PRESET_HOME,
     FAN_AUTO,
@@ -318,6 +319,13 @@ class InfinitiveDevice(ClimateEntity):
                 self._hvac_action = HVACAction.IDLE
         except Exception as e:
             _LOGGER.debug(f"Status update error: {e}")
+
+    async def async_turn_on(self) -> None:
+        """Turn on without changing an active HVAC mode."""
+        if self.hvac_mode != HVACMode.OFF:
+            return
+
+        await super().async_turn_on()
 
     def _set_temperature_high(self, cool_setpoint):
         """Set new coolpoint target temperature."""
